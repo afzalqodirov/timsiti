@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 
 from .config import engine, SECRET_KEY, ALGORITHM, Base, get_db
-from .routes import user_router, news_router
+from .routes import user_router, news_router, menus_router, submenu_router
 from .models import User
 
 
@@ -15,6 +15,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 # routers
 app.include_router(user_router)
 app.include_router(news_router)
+app.include_router(menus_router)
+app.include_router(submenu_router)
 
 @app.get("/profile")
 def profile(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
