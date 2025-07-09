@@ -13,8 +13,38 @@ from .routes import (
     )
 from .models import User
 
+app = FastAPI(
+    description="""
+## Docs
+The github repository is available on this <a href="https://github.com/afzalqodirov/timsiti">**_link_**</a>
 
-app = FastAPI()
+The description usage on <span style='color:green'>**FastAPI**</span> i learnt from this <a href="https://fastapi.tiangolo.com/tutorial/metadata/#metadata-for-api">**_link_**</a>
+    
+## Special Thanks to
+**Sarvarbek Azimov** my precious teacher from **python**
+
+He taught me:
+* Django
+* Django rest-framework
+* Fastapi
+* How to use ai prompts to reach the goals
+* Finally how to set up the server and also _Linux_
+
+If you need the teacher from python here's the <a href="https://t.me/SarvarAzim">**_link_**</a> for his telegram
+    """,
+    title="The TMSITI api", 
+    version="v0.8", 
+    docs_url='/', 
+    redoc_url=None, 
+    contact={"name":"Afzal","url":"https://t.me/Afzal006", "email":"htpafzal@gmail.com"},
+    swagger_ui_parameters={"syntaxHighlight":{"theme":"github"}, "useUnsafeMarkdown": True},
+    openapi_tags=[
+        {"name":"Menus", "description":"The menus and submenus routers"},
+        {"name":"Pages", "description":"The routes for static pages"},
+        {"name":"News", "description":"The newest news"},
+        {"name":"default", "description":"The default routes to handle authorization"},
+    ]
+    )
 Base.metadata.create_all(bind=engine)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
@@ -38,6 +68,3 @@ def profile(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
 
     return {"username": user.username, "message": "Authenticated!"}
-
-@app.get("/")
-def greeting():return {"msg":"Hellou"}

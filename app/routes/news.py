@@ -5,7 +5,7 @@ from app.models import News, Languages
 from app.schemas import NewsRetrieve
 from app.config import get_db
 
-news_router = APIRouter(prefix="/news", tags=["news"])
+news_router = APIRouter(prefix="/news", tags=["News"])
 
 @news_router.post('/add')
 def add_news(news:NewsRetrieve,  db: Session = Depends(get_db)):
@@ -30,7 +30,7 @@ def add_news(news:NewsRetrieve,  db: Session = Depends(get_db)):
 def news_list(lang:Languages = Query("uz"), db:Session = Depends(get_db)):
     try:
         to_return = {"uz":News.title_uz, "ru":News.title_ru, "en":News.title_en}
-        return [{"id":i[0], "title":i[1]} for i in db.query(News.id, to_return[lang]).all()]
+        return [{"id":i[0], "title":i[1]} for i in db.query(News.id, to_return[lang]).order_by(News.created_at).all()]
     except Exception as e:
         print(e)
         return {"msg":"Internal Server Error!"}
@@ -39,9 +39,9 @@ def news_list(lang:Languages = Query("uz"), db:Session = Depends(get_db)):
 def news_detail(id:int, lang:Languages = Query("uz"), db:Session = Depends(get_db)):
     title = {"uz":News.title_uz, "ru":News.title_ru, "en":News.title_en}
     body = {"uz":News.body_uz, "ru":News.body_ru, "en":News.body_en}
-    news = db.query(News.id, title[lang], body[lang], News.image).filter(News.id==id).one_or_none()
+    news = db.query(News.id, title[lang], body[lang], News.image, News.created_at).filter(News.id==id).one_or_none()
     if news:
-        return {"id":news[0], "title":news[1], "content":news[2], "image":news[3]}
+        return {"id":news[0], "title":news[1], "content":news[2], "image":news[3], "created_at":news[4]}
     raise HTTPException(404, "Nothing has found")
 
 @news_router.delete('/delete')

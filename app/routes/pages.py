@@ -5,7 +5,7 @@ from app.schemas import ResultSchema, MenusCreate, MenuBase, SubmenuCreate, Page
 from app.models import Pages, Menus, Submenus
 from app.config import get_db
 
-menus_router = APIRouter(prefix="/menus", tags=['menu'])
+menus_router = APIRouter(prefix="/menus", tags=['Menus'])
 
 # ---------- MENUS ----------
 @menus_router.get('/list', response_model=ResultSchema)
@@ -45,7 +45,7 @@ def delete_menu(id:int, db:Session = Depends(get_db)):
 
 
 # --------- SUBMENUS -----------
-submenu_router = APIRouter(prefix='/submenus', tags=['menu'])
+submenu_router = APIRouter(prefix='/submenus', tags=['Menus'])
 @submenu_router.post('/add', response_model=SubmenuCreate)
 def add_submenu(submenus:SubmenuCreate, db:Session = Depends(get_db)):
     try:
