@@ -1,11 +1,16 @@
 from pydantic import BaseModel
 from typing import List
 
-class PagesSchema(BaseModel):
-    id:int
+class PageBase(BaseModel):
     title:str
     content:str
     submenu:int
+
+class PagesSchema(PageBase):
+    id:int
+
+class PagesList(BaseModel):
+    result:List[PageBase]
 
 class SubmenusBase(BaseModel):
     id:int

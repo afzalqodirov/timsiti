@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.schemas import ResultSchema, MenusCreate, MenuBase, SubmenuCreate
+from app.schemas import ResultSchema, MenusCreate, MenuBase, SubmenuCreate, PagesSchema, PagesList, PageBase
 from app.models import Pages, Menus, Submenus
 from app.config import get_db
 
@@ -80,5 +80,35 @@ def delete_submenu(id:int, db:Session = Depends(get_db)):
 # ---------- END SUBMENUS ----------
 
 # ---------- PAGES -------------
-pages = APIRouter(prefix='/pages', tags=['Pages'])
-pass
+pages_router = APIRouter(prefix='/pages', tags=['Pages'])
+
+@pages_router.get('/retrieve', response_model=PagesList, description="Returns page(s) depenging the submenu")
+def get_the_page(submenu_id:int, db:Session = Depends(get_db)):
+    page = db.query(Pages).filter_by(submenu=submenu_id)
+    if not page:
+        raise HTTPException(status_code=404, detail="The page not found")
+    return {"result":page}
+
+@pages_router.post('/add', response_model=PageBase)
+def add_the_page(page:PageBase, db:Session = Depends(get_db)):
+    try:
+        exists = db.query(Submenus).filter_by(id=page.submenu).one_or_none()
+        if not exists:
+            raise HTTPException(status_code=422, detail="The submenu doesn't exist with that id")
+        new_page = Pages(title=page.title, content=page.content, submenu=page.submenu)
+        db.add(new_page)
+        db.commit()
+        return new_page
+    except HTTPException:raise
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    
+@pages_router.delete('/delete')
+def delete_the_page(id:int, db:Session = Depends(get_db)):
+    exists = db.query(Pages).filter_by(id=id).delete()
+    if exists:
+        db.commit()
+        return {"msg":"Successfully deleted"}
+    raise HTTPException(status_code=404, detail=f"The page not found with id {id}")
+# -------- END PAGES --------
