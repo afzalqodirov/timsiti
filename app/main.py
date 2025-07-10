@@ -33,7 +33,7 @@ He taught me:
 If you need the teacher from python here's the <a href="https://t.me/SarvarAzim">**_link_**</a> for his telegram
     """,
     title="The TMSITI api", 
-    version="v0.8", 
+    version="v0.9", 
     docs_url='/', 
     redoc_url=None, 
     contact={"name":"Afzal","url":"https://t.me/Afzal006", "email":"htpafzal@gmail.com"},
