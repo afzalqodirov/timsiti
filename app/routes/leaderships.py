@@ -16,6 +16,8 @@ async def update_image(id:int, image:UploadFile = File(...), db:Session = Depend
         leader = db.query(Leaderships).filter_by(id=id).first()
         if not leader:
             raise HTTPException(status_code=404, detail="The leader not found")
+        if str(image.filename)[-4:] not in ('.jpg', 'jpeg', '.png'):
+            raise HTTPException(status_code=422, detail='Send an image!')
         image.filename = f'{uuid.uuid4()}.jpg'
         contents = await image.read()
         image_name = f'app/images/{image.filename}'
@@ -24,7 +26,7 @@ async def update_image(id:int, image:UploadFile = File(...), db:Session = Depend
         if str(leader.image)[-11:] != 'default.jpg':
             # to not store all the images!
             os.remove(str(leader.image))
-        setattr(leader, "image", image_name[4:])
+        setattr(leader, "image", image_name[3:])
         db.commit()
         db.refresh(leader)
         return {"msg":"Success!"}
@@ -55,13 +57,13 @@ def add_member(leader:LeadershipsBase, db:Session = Depends(get_db)):
 def list_members(db:Session = Depends(get_db)):
     return db.query(Leaderships).all()
 
-@leaderships_router.get("/member/image/{id}")
+@leaderships_router.get("/member/image/{id}", response_description="If the image is the same, use the members function, so it refreshes the sqlite and database properties")
 def get_image_by_id(id:int, db:Session = Depends(get_db)):
     try:
         leader = db.query(Leaderships.image).filter_by(id=id).first()
         if not leader:
             raise HTTPException(status_code=404, detail="The leader not found")
-        return FileResponse("app/" + leader[0])
+        return FileResponse("app" + leader[0])
     except HTTPException:raise
     except Exception as e:
         print(e)
