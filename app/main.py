@@ -9,7 +9,8 @@ from .routes import (
     news_router, 
     menus_router, 
     submenu_router, 
-    pages_router
+    pages_router,
+    leaderships_router
     )
 from .models import User
 
@@ -31,6 +32,8 @@ He taught me:
 * Finally how to set up the server and also _Linux_
 
 If you need the teacher from python here's the <a href="https://t.me/SarvarAzim">**_link_**</a> for his telegram
+
+**(the exam task is not finished yet)**
     """,
     title="The TMSITI api", 
     version="v0.9", 
@@ -42,6 +45,7 @@ If you need the teacher from python here's the <a href="https://t.me/SarvarAzim"
         {"name":"Menus", "description":"The menus and submenus routers"},
         {"name":"Pages", "description":"The routes for static pages"},
         {"name":"News", "description":"The newest news"},
+        {"name":"Leaderships", "description":"The leaderships router (Rahbariyatlar)"},
         {"name":"default", "description":"The default routes to handle authorization"},
     ]
     )
@@ -54,6 +58,7 @@ app.include_router(pages_router)
 app.include_router(news_router)
 app.include_router(menus_router)
 app.include_router(submenu_router)
+app.include_router(leaderships_router)
 
 @app.get("/profile")
 def profile(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
