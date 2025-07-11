@@ -3,3 +3,5 @@ from .news import news_router
 from .pages import menus_router, submenu_router, pages_router
 from .leaderships import leaderships_router
 from .constituent_units import units_router
+from .vacancies import vacancy_router
+from .standards import standards_router

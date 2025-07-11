@@ -13,6 +13,8 @@ from .routes import (
     pages_router,
     leaderships_router,
     units_router,
+    vacancy_router,
+    standards_router
     )
 from .models import User
 
@@ -22,6 +24,8 @@ app = FastAPI(
 The github repository is available on this <a href="https://github.com/afzalqodirov/timsiti">**_link_**</a>
 
 The original site is available by this <a href="https://tmsiti.uz/">**_link_**</a>
+
+The original site-**backend** is available by this <a href="https://backend.tmsiti.uz/api/v1/swagger/">**_link_**</a>
 
 The description usage on <span style='color:green'>**FastAPI**</span> i learnt from this <a href="https://fastapi.tiangolo.com/tutorial/metadata/#metadata-for-api">**_link_**</a>
     
@@ -40,7 +44,7 @@ If you need the teacher from python here's the <a href="https://t.me/SarvarAzim"
 **(the exam task is not finished yet)**
     """,
     title="🏛️ The TMSITI api", 
-    version="v1.0", 
+    version="v1.1", 
     docs_url='/', 
     redoc_url=None, 
     contact={"name":"Afzal","url":"https://t.me/Afzal006", "email":"htpafzal@gmail.com"},
@@ -51,6 +55,8 @@ If you need the teacher from python here's the <a href="https://t.me/SarvarAzim"
         {"name":"News", "description":"The newest news"},
         {"name":"Leaderships", "description":"The leaderships router (Rahbariyatlar)"},
         {"name":"Units", "description":"The units router (Bo'linmalar)"},
+        {"name":"Vacancies", "description":"The vacancies router (Vakansiyalar)","externalDocs": {"description": "Example url","url": "https://hh.uz"}},
+        {"name":"Standards", "description":"The standards router (Standardlar)"},
         {"name":"default", "description":"The default routes to handle authorization"},
     ]
     )
@@ -59,7 +65,7 @@ Base.metadata.create_all(bind=engine)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 # routers
-routers = [units_router, user_router, pages_router, menus_router, news_router, submenu_router, leaderships_router]
+routers = [units_router, user_router, pages_router, menus_router, news_router, submenu_router, leaderships_router, vacancy_router, standards_router]
 for router in routers:
     app.include_router(router=router)
 

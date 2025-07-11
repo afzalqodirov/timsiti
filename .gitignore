@@ -3,5 +3,4 @@ __pycache__
 app/config/__pycache__
 app/models/__pycache__
 app/routes/__pycache__
-app/schemas/__pycache__
-app/images/*
+app/schemas/__pycache_
