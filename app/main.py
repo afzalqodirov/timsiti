@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
@@ -10,7 +11,8 @@ from .routes import (
     menus_router, 
     submenu_router, 
     pages_router,
-    leaderships_router
+    leaderships_router,
+    units_router,
     )
 from .models import User
 
@@ -18,6 +20,8 @@ app = FastAPI(
     description="""
 ## Docs
 The github repository is available on this <a href="https://github.com/afzalqodirov/timsiti">**_link_**</a>
+
+The original site is available by this <a href="https://tmsiti.uz/">**_link_**</a>
 
 The description usage on <span style='color:green'>**FastAPI**</span> i learnt from this <a href="https://fastapi.tiangolo.com/tutorial/metadata/#metadata-for-api">**_link_**</a>
     
@@ -35,30 +39,29 @@ If you need the teacher from python here's the <a href="https://t.me/SarvarAzim"
 
 **(the exam task is not finished yet)**
     """,
-    title="The TMSITI api", 
-    version="v0.9", 
+    title="🏛️ The TMSITI api", 
+    version="v1.0", 
     docs_url='/', 
     redoc_url=None, 
     contact={"name":"Afzal","url":"https://t.me/Afzal006", "email":"htpafzal@gmail.com"},
     swagger_ui_parameters={"syntaxHighlight":{"theme":"github"}, "useUnsafeMarkdown": True},
     openapi_tags=[
         {"name":"Menus", "description":"The menus and submenus routers"},
-        {"name":"Pages", "description":"The routes for static pages"},
+        {"name":"Pages", "description":"The routes for static pages (Statik sahifalar uchun)"},
         {"name":"News", "description":"The newest news"},
         {"name":"Leaderships", "description":"The leaderships router (Rahbariyatlar)"},
+        {"name":"Units", "description":"The units router (Bo'linmalar)"},
         {"name":"default", "description":"The default routes to handle authorization"},
     ]
     )
+app.mount('/images', StaticFiles(directory='./app/images'), name='static')
 Base.metadata.create_all(bind=engine)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 # routers
-app.include_router(user_router)
-app.include_router(pages_router)
-app.include_router(news_router)
-app.include_router(menus_router)
-app.include_router(submenu_router)
-app.include_router(leaderships_router)
+routers = [units_router, user_router, pages_router, menus_router, news_router, submenu_router, leaderships_router]
+for router in routers:
+    app.include_router(router=router)
 
 @app.get("/profile")
 def profile(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):

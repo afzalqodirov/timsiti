@@ -10,21 +10,21 @@ from app.schemas import LeadershipsBase
 
 leaderships_router = APIRouter(prefix="/leaderships", tags=["Leaderships"])
 
-@leaderships_router.patch("/update/image")
+@leaderships_router.patch("/update/image/{id}")
 async def update_image(id:int, image:UploadFile = File(...), db:Session = Depends(get_db)):
     try:
+        leader = db.query(Leaderships).filter_by(id=id).first()
+        if not leader:
+            raise HTTPException(status_code=404, detail="The leader not found")
         image.filename = f'{uuid.uuid4()}.jpg'
         contents = await image.read()
         image_name = f'app/images/{image.filename}'
         with open(image_name, 'wb') as file:
             file.write(contents)
-        leader = db.query(Leaderships).filter_by(id=id).first()
-        if not leader:
-            raise HTTPException(status_code=404, detail="The leader not found")
         if str(leader.image)[-11:] != 'default.jpg':
             # to not store all the images!
             os.remove(str(leader.image))
-        setattr(leader, "image", image_name)
+        setattr(leader, "image", image_name[4:])
         db.commit()
         db.refresh(leader)
         return {"msg":"Success!"}
@@ -55,28 +55,32 @@ def add_member(leader:LeadershipsBase, db:Session = Depends(get_db)):
 def list_members(db:Session = Depends(get_db)):
     return db.query(Leaderships).all()
 
-@leaderships_router.get("/member/image")
+@leaderships_router.get("/member/image/{id}")
 def get_image_by_id(id:int, db:Session = Depends(get_db)):
     try:
         leader = db.query(Leaderships.image).filter_by(id=id).first()
         if not leader:
             raise HTTPException(status_code=404, detail="The leader not found")
-        return FileResponse(leader[0])
+        return FileResponse("app/" + leader[0])
     except HTTPException:raise
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
     
-@leaderships_router.delete("/member/delete")
+@leaderships_router.delete("/member/delete/{id}")
 def delete_member_by_id(id:int, db:Session = Depends(get_db)):
     try:
         leader = db.query(Leaderships).filter_by(id=id).first()
         if leader:
+            
             # extra trash removing
-            os.remove(str(leader.image))
+            if str(leader.image)[-11:] != 'default.jpg':
+                os.remove('app/' + str(leader.image))
+            
             db.delete(leader)
             db.commit()
             return {"msg":"Successfully deleted"}
+        
         raise HTTPException(detail="The leader not found", status_code=404)
     except HTTPException:raise
     except Exception as e:

@@ -12,4 +12,4 @@ class Leaderships(Base):
     phone_number = Column(String)
     email = Column(String)
     bachelor_speciality = Column(String)
-    image = Column(String, default='app/images/default.jpg')
+    image = Column(String, default='/images/default.jpg')
