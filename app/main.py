@@ -3,7 +3,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
+from dotenv import load_dotenv
+from os import getenv
+import requests
 
+from .schemas import Message
 from .config import engine, SECRET_KEY, ALGORITHM, Base, get_db
 from .routes import (
     user_router, 
@@ -17,7 +21,7 @@ from .routes import (
     standards_router
     )
 from .models import User
-
+load_dotenv()
 app = FastAPI(
     description="""
 ## Docs
@@ -63,11 +67,31 @@ If you need the teacher from python here's the <a href="https://t.me/SarvarAzim"
 app.mount('/images', StaticFiles(directory='./app/images'), name='static')
 Base.metadata.create_all(bind=engine)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+# the bot's token which will send the message
+bot_token=getenv('Bot_token')
+# the reciever's id, by default it is Afzal's id
+tg_id=getenv('tg_id', '716756079')
 
 # routers
 routers = [units_router, user_router, pages_router, menus_router, news_router, submenu_router, leaderships_router, vacancy_router, standards_router]
 for router in routers:
     app.include_router(router=router)
+
+@app.post('/send_message')
+def telegram_message(message:Message):
+    try:
+        text = f"Full name: {message.first_name} {message.last_name}\n"\
+        f"Message: {message.message}\n"\
+        f"Email: {message.email}\n"\
+        f"PhoneNumber: {message.phone_number}"
+        response = requests.get(f'https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={tg_id}&text={text}')
+        if response.status_code == 200:
+            return {"msg":"Successfully sent to Afzal"}
+        return response.json()
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 @app.get("/profile")
 def profile(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
